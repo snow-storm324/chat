@@ -91,7 +91,7 @@
       .select("*")
       .gt("id", lastMessageId)
       .order("id", { ascending: true })
-      .limit(50);
+      .limit(30);
 
     if (!data || data.length === 0) return;
 
