@@ -5,30 +5,39 @@
   <title>Live Chat</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: Arial, sans-serif;
       background: #f9f9f9;
     }
     #chat {
-      max-width: 450px;
-      margin: auto;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
       background: #fff;
-      border: 1px solid #ccc;
+      box-sizing: border-box;
       padding: 10px;
     }
     #messages {
-      height: 250px;
+      flex: 1;
       overflow-y: auto;
       border: 1px solid #ddd;
       padding: 8px;
-      margin-bottom: 6px;
       font-size: 14px;
+      margin-bottom: 6px;
     }
     input, button {
       width: 100%;
-      padding: 6px;
+      padding: 8px;
       margin-top: 5px;
       box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      cursor: pointer;
     }
   </style>
 </head>
@@ -50,7 +59,7 @@
   const messagesDiv = document.getElementById("messages");
   const sendButton = document.getElementById("sendButton");
 
-  let lastMessageId = 0; // Keep track of newest message
+  let lastMessageId = 0;
 
   function addMessage(user, text) {
     const div = document.createElement("div");
@@ -105,7 +114,7 @@
   sendButton.addEventListener("click", sendMessage);
 
   loadMessages();
-  setInterval(pollNewMessages, 500); // check for new messages every 2 seconds
+  setInterval(pollNewMessages, 500); // check for new messages every 0.5 seconds
 </script>
 
 </body>
