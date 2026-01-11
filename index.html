@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Live Chat</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+    }
+    #chat {
+      max-width: 450px;
+      margin: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    #messages {
+      height: 250px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    input, button {
+      width: 100%;
+      padding: 6px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chat">
+  <div id="messages"></div>
+  <input id="username" placeholder="Enter your username">
+  <input id="message" placeholder="Type a message">
+  <button id="sendButton">Send</button>
+</div>
+
+<script>
+  const supabaseClient = supabase.createClient(
+    "https://zhcqhyfveyeztfynolvo.supabase.co",
+    "sb_publishable_I6Oy0XkE6avcupzimauYrg_TGB4A9zK"
+  );
+
+  const messagesDiv = document.getElementById("messages");
+  const sendButton = document.getElementById("sendButton");
+
+  let lastMessageId = 0; // Keep track of newest message
+
+  function addMessage(user, text) {
+    const div = document.createElement("div");
+    div.textContent = user + ": " + text;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  async function loadMessages() {
+    const { data } = await supabaseClient
+      .from("messages")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (!data) return;
+
+    messagesDiv.innerHTML = "";
+    data.forEach(m => {
+      addMessage(m.username, m.message);
+      lastMessageId = Math.max(lastMessageId, m.id);
+    });
+  }
+
+  async function pollNewMessages() {
+    const { data } = await supabaseClient
+      .from("messages")
+      .select("*")
+      .gt("id", lastMessageId)
+      .order("id", { ascending: true });
+
+    if (!data || data.length === 0) return;
+
+    data.forEach(m => {
+      addMessage(m.username, m.message);
+      lastMessageId = Math.max(lastMessageId, m.id);
+    });
+  }
+
+  async function sendMessage() {
+    const user = document.getElementById("username").value.trim();
+    const text = document.getElementById("message").value.trim();
+    if (!user || !text) return;
+
+    await supabaseClient.from("messages").insert({
+      username: user,
+      message: text
+    });
+
+    document.getElementById("message").value = "";
+  }
+
+  sendButton.addEventListener("click", sendMessage);
+
+  loadMessages();
+  setInterval(pollNewMessages, 500); // check for new messages every 2 seconds
+</script>
+
+</body>
+</html>
